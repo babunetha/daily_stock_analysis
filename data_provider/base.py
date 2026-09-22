@@ -15,6 +15,7 @@
 """
 
 import logging
+import os
 import random
 import time
 from threading import BoundedSemaphore, RLock, Thread
@@ -32,6 +33,8 @@ from src.services.stock_list_parser import AnalysisTarget, ParseStatus, parse_an
 from .fundamental_adapter import AkshareFundamentalAdapter
 from .yfinance_fundamental_adapter import YfinanceFundamentalAdapter
 from .realtime_types import CircuitBreaker
+from .nse_mcp_fetcher import NSEMCPFetcher
+from .dhan_fetcher import DhanFetcher, is_dhan_configured
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -629,6 +632,8 @@ class DataFetcherManager:
         "FutuFetcher": {"hk"},
         "FinnhubFetcher": {"us"},
         "AlphaVantageFetcher": {"us"},
+        "NSEMCPFetcher": {"in"},
+        "DhanFetcher": {"in"},
     }
     _daily_source_health = CircuitBreaker(failure_threshold=3, cooldown_seconds=300.0)
     _CN_INDEX_DAILY_SOURCE_ORDER = (
@@ -1794,6 +1799,10 @@ class DataFetcherManager:
         from .longbridge_fetcher import LongbridgeFetcher
         from .futu_fetcher import FutuFetcher
         config = get_config()
+        # India/NSE providers are first-class. NSE MCP is always registered;
+        # Dhan is registered only when server-side credentials exist.
+        nse_mcp = NSEMCPFetcher()
+        dhan = DhanFetcher() if is_dhan_configured() else None
         # 创建所有数据源实例（优先级在各 Fetcher 的 __init__ 中确定）
         efinance = EfinanceFetcher()
         tencent = TencentFetcher()
@@ -1851,6 +1860,8 @@ class DataFetcherManager:
         self._ensure_concurrency_guards()
         with self._fetchers_lock:
             self._fetchers = [
+                nse_mcp,
+                *([dhan] if dhan is not None else []),
                 efinance,
                 akshare,
                 pytdx,
@@ -1938,14 +1949,21 @@ class DataFetcherManager:
         is_jp = (not is_us) and (not is_hk) and _is_jp_market(stock_code)
         is_kr = (not is_us) and (not is_hk) and _is_kr_market(stock_code)
         is_tw = (not is_us) and (not is_hk) and _is_tw_market(stock_code)
-        market = "us" if is_us else "hk" if is_hk else "jp" if is_jp else "kr" if is_kr else "tw" if is_tw else "cn"
+        # This project is India-first. Explicit NSE:/BSE:/ .NS symbols and
+        # 6-digit NSE/BSE-style codes are routed to the India stack. Bare symbols
+        # can be made India-default with DSA_DEFAULT_MARKET=in (the project default).
+        default_market = (os.getenv("DSA_DEFAULT_MARKET") or "in").strip().lower()
+        explicit_india = raw_stock_code.upper().startswith(("NSE:", "BSE:")) or raw_stock_code.upper().endswith(".NS")
+        numeric_india = stock_code.isdigit() and len(stock_code) == 6
+        india_default = default_market == "in" and not (is_us or is_hk or is_jp or is_kr or is_tw)
+        market = "us" if is_us else "hk" if is_hk else "jp" if is_jp else "kr" if is_kr else "tw" if is_tw else "in" if (explicit_india or numeric_india or india_default) else "cn"
         if market != "cn":
             fetchers = self._filter_daily_fetchers_for_market(fetchers, market)
         fetchers = self._filter_fetchers_by_capability(fetchers, capability="daily_data")
         total_fetchers = len(fetchers)
 
         if total_fetchers == 0:
-            market_label = "美股指数" if is_us_index else "美股" if is_us else "港股" if is_hk else "台股" if is_tw else "A股"
+            market_label = "美股指数" if is_us_index else "美股" if is_us else "港股" if is_hk else "台股" if is_tw else "印度/NSE" if market == "in" else "A股"
             error_summary = f"{market_label} {stock_code} 获取失败:\n暂无可用数据源"
             logger.error(f"[数据源终止] {stock_code} 获取失败: {error_summary}")
             raise DataFetchError(error_summary)
