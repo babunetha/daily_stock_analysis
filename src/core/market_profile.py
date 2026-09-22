@@ -14,7 +14,7 @@ from typing import List
 class MarketProfile:
     """大盘复盘市场区域配置"""
 
-    region: str  # "cn" | "hk" | "us" | "jp" | "kr"
+    region: str  # "in" | "cn" | "hk" | "us" | "jp" | "kr"
     # 用于判断整体走势的指数代码，cn 用上证 000001，us 用标普 SPX
     mood_index_code: str
     # 新闻搜索关键词
@@ -26,6 +26,20 @@ class MarketProfile:
     # 市场概况是否包含板块涨跌（A 股有，美股暂无）
     has_sector_rankings: bool
 
+
+
+IN_PROFILE = MarketProfile(
+    region="in",
+    mood_index_code="NIFTY",
+    news_queries=[
+        "NSE India stock market",
+        "NIFTY 50 market",
+        "Indian stocks market news",
+    ],
+    prompt_index_hint="分析 NIFTY 50、BANK NIFTY、SENSEX 等印度主要指数走势特点",
+    has_market_stats=True,
+    has_sector_rankings=True,
+)
 
 CN_PROFILE = MarketProfile(
     region="cn",
@@ -95,6 +109,8 @@ KR_PROFILE = MarketProfile(
 
 def get_profile(region: str) -> MarketProfile:
     """根据 region 返回对应的 MarketProfile"""
+    if region == "in":
+        return IN_PROFILE
     if region == "us":
         return US_PROFILE
     if region == "hk":
