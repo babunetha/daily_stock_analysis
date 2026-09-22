@@ -26,7 +26,7 @@ from .us_index_mapping import (
     US_INDEX_MAPPING,
 )
 from .nse_mcp_fetcher import NSEMCPFetcher, is_india_stock_symbol
-from .india_nse_integration import install_india_nse_integration
+from .dhan_fetcher import DhanFetcher, is_dhan_configured
 
 __all__ = [
     "BaseFetcher",
@@ -42,6 +42,8 @@ __all__ = [
     "FinnhubFetcher",
     "AlphaVantageFetcher",
     "NSEMCPFetcher",
+    "DhanFetcher",
+    "is_dhan_configured",
     "is_india_stock_symbol",
     "is_us_index_code",
     "is_us_stock_code",
