@@ -91,7 +91,7 @@ def _build_tool_arguments(tool: Any, symbol: str, start_date: str, end_date: str
     props = _property_names(tool)
     args: Dict[str, Any] = {}
 
-    symbol_keys = {"symbol", "stock_symbol", "stock", "ticker", "code", "symbol_code", "security"}
+    symbol_keys = {"symbol", "stock_symbol", "stock", "ticker", "code", "symbol_code", "security", "query"}
     start_keys = {"start_date", "from_date", "from", "start", "begin_date"}
     end_keys = {"end_date", "to_date", "to", "end", "finish_date"}
     date_keys = {"date", "trade_date", "trading_date"}
