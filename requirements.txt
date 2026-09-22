@@ -75,3 +75,7 @@ python-multipart>=0.0.6     # FastAPI File/Form upload support
 
 # Official NSE Market Data MCP client
 mcp>=1.0.0
+
+# Systematic backtesting
+vectorbt==1.1.0
+plotly==5.24.1
