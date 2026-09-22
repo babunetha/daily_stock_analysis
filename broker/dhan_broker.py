@@ -39,12 +39,23 @@ class DhanBroker:
         if r.status_code>=400: raise RuntimeError(f"Dhan {method} {path} HTTP {r.status_code}: {r.text[:500]}")
         return r.json()
     def get_orders(self)->Any: return self._request("GET","/orders")
+    def get_order(self, order_id: str)->Any: return self._request("GET", f"/orders/{order_id}")
+    def get_order_by_correlation_id(self, correlation_id: str)->Any: return self._request("GET", f"/orders/external/{correlation_id}")
     def get_trades(self)->Any: return self._request("GET","/trades")
     def get_positions(self)->Any: return self._request("GET","/positions")
     def get_holdings(self)->Any: return self._request("GET","/holdings")
     def get_fund_limits(self)->Any: return self._request("GET","/fundlimit")
+    def modify_order(self, order_id: str, *, order_type: str, quantity: int, price: float = 0.0, trigger_price: float = 0.0, validity: str = "DAY", confirm_live: bool = False)->Any:
+        self._require_live_gate(confirm_live)
+        payload={"dhanClientId":self.client_id,"orderId":str(order_id),"orderType":order_type,"legName":"","quantity":int(quantity),"price":float(price),"disclosedQuantity":0,"triggerPrice":float(trigger_price),"validity":validity}
+        return self._request("PUT",f"/orders/{order_id}",json=payload)
+
     def cancel_order(self,order_id:str,*,confirm_live:bool=False)->Any:
         self._require_live_gate(confirm_live); return self._request("DELETE",f"/orders/{order_id}")
+
+    def reconcile(self)->Dict[str,Any]:
+        """Return broker order/trade/position state for reconciliation."""
+        return {"orders":self.get_orders(),"trades":self.get_trades(),"positions":self.get_positions()}
     def place_order(self,intent:OrderIntent,*,confirm_live:bool=False)->Any:
         self._require_live_gate(confirm_live)
         if intent.side.upper() not in {"BUY","SELL"}: raise ValueError("Order side must be BUY or SELL")
