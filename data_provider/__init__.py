@@ -41,6 +41,7 @@ from .pytdx_fetcher import PytdxFetcher
 from .baostock_fetcher import BaostockFetcher
 from .yfinance_fetcher import YfinanceFetcher
 from .longbridge_fetcher import LongbridgeFetcher
+from .nse_fetcher import NSEFetcher
 from .finnhub_fetcher import FinnhubFetcher
 from .alphavantage_fetcher import AlphaVantageFetcher
 from .us_index_mapping import is_us_index_code, is_us_stock_code, get_us_index_yf_symbol, US_INDEX_MAPPING
@@ -56,6 +57,7 @@ __all__ = [
     'BaostockFetcher',
     'YfinanceFetcher',
     'LongbridgeFetcher',
+    'NSEFetcher',
     'FinnhubFetcher',
     'AlphaVantageFetcher',
     'is_us_index_code',
