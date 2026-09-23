@@ -349,6 +349,15 @@ class BaseFetcher(ABC):
     @abstractmethod
     def _fetch_raw_data(self, stock_code: str, start_date: str, end_date: str) -> pd.DataFrame:
         """
+        if region == "in":
+            try:
+                data = NSEFetcher().get_main_indices(region=region)
+                if data:
+                    logger.info("[NSEFetcher] 获取印度指数行情成功")
+                    return data
+            except Exception as e:
+                logger.warning(f"[NSEFetcher] 获取印度指数行情失败: {e}")
+            return []
         从数据源获取原始数据（子类必须实现）
         
         Args:
@@ -3256,15 +3265,6 @@ class DataFetcherManager:
 
     def get_main_indices(self, region: str = "cn") -> List[Dict[str, Any]]:
         """获取主要指数实时行情（自动切换数据源）"""
-        if region == "in":
-            try:
-                data = NSEFetcher().get_main_indices(region=region)
-                if data:
-                    logger.info("[NSEFetcher] 获取印度指数行情成功")
-                    return data
-            except Exception as e:
-                logger.warning(f"[NSEFetcher] 获取印度指数行情失败: {e}")
-            return []
         if region == "cn":
             tickflow_fetcher = self._get_tickflow_fetcher()
             if tickflow_fetcher is not None:
