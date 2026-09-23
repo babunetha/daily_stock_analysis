@@ -3316,6 +3316,8 @@ class DataFetcherManager:
         for fetcher in self._fetchers:
             if fetcher.name == "TickFlowFetcher":
                 continue
+            if fetcher.name == "NSEFetcher" and not str(purpose).startswith("market_review:in"):
+                continue
             started_at = time.monotonic()
             try:
                 data = fetcher.get_market_stats()
