@@ -39,6 +39,8 @@ except ImportError:
 
 # Market -> exchange code (exchange-calendars)
 MARKET_EXCHANGE = {"cn": "XSHG", "hk": "XHKG", "us": "XNYS", "jp": "XTKS", "kr": "XKRX", "tw": "XTAI"}
+# NSE is handled separately rather than mapped to the BSE calendar.
+
 
 # Market -> IANA timezone for "today"
 MARKET_TIMEZONE = {
@@ -48,6 +50,7 @@ MARKET_TIMEZONE = {
     "jp": "Asia/Tokyo",
     "kr": "Asia/Seoul",
     "tw": "Asia/Taipei",
+    "in": "Asia/Kolkata",
 }
 
 # P0 market phase baseline (Issue #1386). This is an intentionally small
@@ -161,6 +164,8 @@ def is_market_open(market: str, check_date: date) -> bool:
     Returns:
         True if trading day (or fail-open), False otherwise
     """
+    if market == "in":
+        return check_date.weekday() < 5
     if not _XCALS_AVAILABLE:
         return True
     ex = MARKET_EXCHANGE.get(market)

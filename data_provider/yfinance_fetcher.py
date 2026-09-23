@@ -153,6 +153,12 @@ class YfinanceFetcher(BaseFetcher):
             logger.debug(f"识别裸港股代码: {stock_code} -> {hk_code}.HK")
             return f"{hk_code}.HK"
 
+        # Indian NSE Yahoo symbol: NSE:RELIANCE or RELIANCE.NS
+        if code.startswith("NSE:"):
+            return f"{code[4:]}.NS"
+        if code.endswith(".NS"):
+            return code
+
         # 已经包含后缀的情况
         if '.SS' in code or '.SZ' in code or '.HK' in code or '.BJ' in code:
             return code

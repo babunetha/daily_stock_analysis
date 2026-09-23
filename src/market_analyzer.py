@@ -151,7 +151,7 @@ class MarketAnalyzer:
         self.search_service = search_service
         self.analyzer = analyzer
         self.data_manager = DataFetcherManager()
-        self.region = region if region in ("cn", "us", "hk", "jp", "kr") else "cn"
+        self.region = region if region in ("cn", "us", "hk", "jp", "kr", "in") else "cn"
         self.profile: MarketProfile = get_profile(self.region)
         self.strategy = get_market_strategy_blueprint(self.region)
 
@@ -307,6 +307,8 @@ class MarketAnalyzer:
             return "Japan market" if review_language == "en" else "日本市场"
         if self.region == "kr":
             return "Korea market" if review_language == "en" else "韩国市场"
+        if self.region == "in":
+            return "Indian market" if review_language == "en" else "印度股市"
         if review_language == "en":
             return "A-share market"
         return "A股市场"
@@ -321,6 +323,8 @@ class MarketAnalyzer:
             return "JPY bn" if self._get_review_language() == "en" else "十亿日元"
         if self.region == "kr":
             return "KRW bn" if self._get_review_language() == "en" else "十亿韩元"
+        if self.region == "in":
+            return "INR bn" if self._get_review_language() == "en" else "十亿卢比"
         return "CNY 100m" if self._get_review_language() == "en" else "亿"
 
     def _format_turnover_value(self, amount_raw: float) -> str:
@@ -734,7 +738,18 @@ Focus on index trend, liquidity, and sector rotation to shape the next-session t
         
         all_news = []
 
+        if self.region == "in":
+            try:
+                from data_provider.moneycontrol_fetcher import get_moneycontrol_market_news
+                all_news.extend(get_moneycontrol_market_news(limit=10))
+                logger.info("[大盘] %s action=moneycontrol_news status=success count=%s", self._log_context(), len(all_news))
+            except Exception as exc:
+                logger.warning("[大盘] %s action=moneycontrol_news status=failed error=%s", self._log_context(), exc)
+
         # 按 region 使用不同的新闻搜索词
+        if not self.search_service:
+            return all_news
+
         search_queries = self.profile.news_queries
         review_language = self._get_review_language()
         market_names = {
@@ -743,6 +758,7 @@ Focus on index trend, liquidity, and sector rotation to shape the next-session t
             "hk": "港股市场" if review_language == "zh" else "HK market",
             "jp": "日本股市" if review_language == "zh" else "Japan stock market",
             "kr": "韩国股市" if review_language == "zh" else "Korea stock market",
+            "in": "印度股市" if review_language == "zh" else "Indian stock market",
         }
         
         try:
