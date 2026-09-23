@@ -1942,7 +1942,7 @@ class DataFetcherManager:
         is_jp = (not is_us) and (not is_hk) and _is_jp_market(stock_code)
         is_kr = (not is_us) and (not is_hk) and _is_kr_market(stock_code)
         is_tw = (not is_us) and (not is_hk) and _is_tw_market(stock_code)
-        is_india = (not is_us) and (not is_hk) and (not is_jp) and (not is_kr) and (not is_tw) and (\n            stock_code.upper().startswith("NSE:") or stock_code.upper().endswith(".NS")\n        )\n        market = "us" if is_us else "hk" if is_hk else "jp" if is_jp else "kr" if is_kr else "tw" if is_tw else "in" if is_india else "cn"\n        if market != "cn":
+        is_india = (not is_us) and (not is_hk) and (not is_jp) and (not is_kr) and (not is_tw) and (\n            stock_code.upper().startswith("NSE:") or stock_code.upper().endswith(".NS")\n        )\n        market = (\n            "us" if is_us else "hk" if is_hk else "jp" if is_jp else\n            "kr" if is_kr else "tw" if is_tw else "in" if is_india else "cn"\n        )\n        if market != "cn":
             fetchers = self._filter_daily_fetchers_for_market(fetchers, market)
         fetchers = self._filter_fetchers_by_capability(fetchers, capability="daily_data")
         total_fetchers = len(fetchers)
