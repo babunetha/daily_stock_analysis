@@ -38,7 +38,9 @@ except ImportError:
     )
 
 # Market -> exchange code (exchange-calendars)
-MARKET_EXCHANGE = {"cn": "XSHG", "hk": "XHKG", "us": "XNYS", "jp": "XTKS", "kr": "XKRX", "tw": "XTAI"}\n# NSE is handled separately rather than mapped to the BSE calendar.\n
+MARKET_EXCHANGE = {"cn": "XSHG", "hk": "XHKG", "us": "XNYS", "jp": "XTKS", "kr": "XKRX", "tw": "XTAI"}
+# NSE is handled separately rather than mapped to the BSE calendar.
+
 
 # Market -> IANA timezone for "today"
 MARKET_TIMEZONE = {
