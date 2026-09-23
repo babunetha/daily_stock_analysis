@@ -1803,7 +1803,6 @@ class DataFetcherManager:
         pytdx = PytdxFetcher()      # 通达信数据源（可配 PYTDX_HOST/PYTDX_PORT）
         baostock = BaostockFetcher()
         yfinance = YfinanceFetcher()
-        nse = NSEFetcher()
         optional_fetchers: List[BaseFetcher] = []
 
         tushare_token = (getattr(config, "tushare_token", None) or "").strip()
@@ -1859,7 +1858,6 @@ class DataFetcherManager:
                 pytdx,
                 baostock,
                 yfinance,
-                nse,
                 tencent,
                 *optional_fetchers,
             ]
@@ -1949,6 +1947,8 @@ class DataFetcherManager:
             "us" if is_us else "hk" if is_hk else "jp" if is_jp else
             "kr" if is_kr else "tw" if is_tw else "in" if is_india else "cn"
         )
+        if market == "in":
+            fetchers = [*fetchers, NSEFetcher()]
         if market != "cn":
             fetchers = self._filter_daily_fetchers_for_market(fetchers, market)
         fetchers = self._filter_fetchers_by_capability(fetchers, capability="daily_data")
@@ -3256,6 +3256,15 @@ class DataFetcherManager:
 
     def get_main_indices(self, region: str = "cn") -> List[Dict[str, Any]]:
         """获取主要指数实时行情（自动切换数据源）"""
+        if region == "in":
+            try:
+                data = NSEFetcher().get_main_indices(region=region)
+                if data:
+                    logger.info("[NSEFetcher] 获取印度指数行情成功")
+                    return data
+            except Exception as e:
+                logger.warning(f"[NSEFetcher] 获取印度指数行情失败: {e}")
+            return []
         if region == "cn":
             tickflow_fetcher = self._get_tickflow_fetcher()
             if tickflow_fetcher is not None:
@@ -3282,6 +3291,15 @@ class DataFetcherManager:
 
     def get_market_stats(self, *, purpose: str = "unspecified") -> Dict[str, Any]:
         """获取市场涨跌统计（自动切换数据源）"""
+        if str(purpose).startswith("market_review:in"):
+            try:
+                data = NSEFetcher().get_market_stats()
+                if data:
+                    logger.info("[NSEFetcher] 获取印度市场统计成功")
+                    return data
+            except Exception as e:
+                logger.warning(f"[NSEFetcher] 获取印度市场统计失败: {e}")
+            return {}
         logger.info("[MarketStats] component=market_stats action=start purpose=%s", purpose)
         tickflow_fetcher = self._get_tickflow_fetcher()
         if tickflow_fetcher is not None:
