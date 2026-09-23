@@ -747,7 +747,7 @@ Focus on index trend, liquidity, and sector rotation to shape the next-session t
                 logger.warning("[大盘] %s action=moneycontrol_news status=failed error=%s", self._log_context(), exc)
 
         # 按 region 使用不同的新闻搜索词
-        search_queries = self.profile.news_queries
+        if not self.search_service:\n            return all_news\n\n        search_queries = self.profile.news_queries
         review_language = self._get_review_language()
         market_names = {
             "cn": "大盘" if review_language == "zh" else "A-share market",
