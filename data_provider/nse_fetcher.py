@@ -16,7 +16,19 @@ from typing import Any, Dict, Optional
 import pandas as pd
 import requests
 
-from .base import BaseFetcher, DataFetchError, STANDARD_COLUMNS
+try:
+    # Avoid importing data_provider.base while it is still initializing. The NSE
+    # adapter is loaded lazily by DataFetcherManager, so a lightweight fallback
+    # keeps module import acyclic while preserving the adapter interface.
+    from .base import BaseFetcher, DataFetchError, STANDARD_COLUMNS
+except ImportError:  # pragma: no cover - only hit during circular initialization
+    class BaseFetcher:
+        pass
+
+    class DataFetchError(Exception):
+        pass
+
+    STANDARD_COLUMNS = ['date', 'open', 'high', 'low', 'close', 'volume', 'amount', 'pct_chg']
 from .realtime_types import RealtimeSource, UnifiedRealtimeQuote, safe_float, safe_int
 
 logger = logging.getLogger(__name__)
