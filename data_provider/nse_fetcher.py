@@ -176,8 +176,13 @@ class NSEFetcher(BaseFetcher):
                     "current": safe_float(row.get("last")),
                     "change": safe_float(row.get("variation")),
                     "change_pct": safe_float(row.get("percentChange")),
+                    "open": safe_float(row.get("open")),
+                    "high": safe_float(row.get("dayHigh")),
+                    "low": safe_float(row.get("dayLow")),
+                    "prev_close": safe_float(row.get("previousClose")),
                     "volume": safe_int(row.get("volume")),
                     "amount": safe_float(row.get("turnover")),
+                    "amplitude": safe_float(row.get("perChange")),
                 }
             )
         return results or None
