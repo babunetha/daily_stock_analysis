@@ -40,6 +40,19 @@ CN_PROFILE = MarketProfile(
     has_sector_rankings=True,
 )
 
+IN_PROFILE = MarketProfile(
+    region="in",
+    mood_index_code="NIFTY50",
+    news_queries=[
+        "NSE NIFTY 50 India market",
+        "NSE stocks market news",
+        "Indian stock market today",
+    ],
+    prompt_index_hint="Analyze NIFTY 50, NIFTY Bank and other major NSE indices.",
+    has_market_stats=True,
+    has_sector_rankings=False,
+)
+
 US_PROFILE = MarketProfile(
     region="us",
     mood_index_code="SPX",
