@@ -47,6 +47,7 @@ _MARKET_REVIEW_MARKETS = (
     ('us', 'us_title', '美股'),
     ('jp', 'jp_title', '日股'),
     ('kr', 'kr_title', '韩股'),
+    ('in', 'in_title', '印度股市'),
 )
 _MARKET_REVIEW_REGION_ORDER = MARKET_REVIEW_REGION_ORDER
 
@@ -123,6 +124,7 @@ def _get_market_review_text(language: str) -> dict[str, str]:
             "hk_title": "# HK Market Recap",
             "jp_title": "# Japan Market Recap",
             "kr_title": "# Korea Market Recap",
+            "in_title": "# India (NSE) Market Recap",
             "separator": "> Next market recap follows",
         }
     if normalized == "ko":
