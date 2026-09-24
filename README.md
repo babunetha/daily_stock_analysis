@@ -1,4 +1,4 @@
-<div align="center">
+> **Hosted dashboard:** https://daily-stock-analysis.hatchable.site — online India-market research dashboard using Hatchable runtime and Supabase persistence. Research-only; broker execution/live trading disabled.\n\n<div align="center">
 
 # 📈 股票智能分析系统
 
